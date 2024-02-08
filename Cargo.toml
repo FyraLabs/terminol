@@ -1,0 +1,15 @@
+[package]
+name = "terminol"
+description = "UNIX Terminal utilities so simple you can do it when you're drunk."
+license = "MIT"
+homepage = "https://github.com/FyraLabs/terminol"
+repository = "https://github.com/FyraLabs/terminol"
+readme = "README.md"
+version = "0.1.0"
+edition = "2021"
+keywords = ["cli", "input", "terminal", "tui", "color"]
+categories = ["command-line-interface", "command-line-utilities"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
