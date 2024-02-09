@@ -13,3 +13,6 @@ categories = ["command-line-interface", "command-line-utilities"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+crossbeam = { version = "0.8.4", features = ["crossbeam-queue"] }
+process_alive = "0.1.1"
+tracing = "0.1.40"
