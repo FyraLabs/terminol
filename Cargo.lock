@@ -105,10 +105,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "syn"
-version = "2.0.48"
+name = "string-reader"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f3531638e407dfc0814761abb7c00a5b54992b849452a0646b7f65c9f770f3f"
+checksum = "5b948723044a2d0ef716a5783631a96f02004803a12e513b1de0b062f1c82fba"
+
+[[package]]
+name = "syn"
+version = "2.0.50"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74f1bdc9872430ce9b75da68329d1c1746faf50ffac5f19e02b71e37ff881ffb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -121,6 +127,7 @@ version = "0.1.0"
 dependencies = [
  "crossbeam",
  "process_alive",
+ "string-reader",
  "tracing",
 ]
 
