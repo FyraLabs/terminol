@@ -65,8 +65,8 @@ pub trait LineMake: Line {
 pub type IntersectHandler = Rc<dyn Fn(&Intersect) -> Option<char>>;
 
 #[rustfmt::skip]
-pub fn terminol_default_intersect_handler(int: Intersect) -> Option<char> {
-    fn mapper(s: Option<Rc<dyn Line>>, shift: u8) -> Option<u8> {
+pub fn ol_default_intersect_hdl(int: &Intersect) -> Option<char> {
+    fn mapper(s: Option<&Rc<dyn Line>>, shift: u8) -> Option<u8> {
         Some(
             match s.map(|s| s.get_ident()).as_ref().map(|s| s.as_str()) {
                 Some("single") => 0b00,
@@ -78,10 +78,10 @@ pub fn terminol_default_intersect_handler(int: Intersect) -> Option<char> {
         )
     }
     let mut flags: u8 = 0;
-    flags |= mapper(int.up, 0)?;
-    flags |= mapper(int.down, 1)?;
-    flags |= mapper(int.left, 2)?;
-    flags |= mapper(int.right, 3)?;
+    flags |= mapper(int.up.as_ref(), 0)?;
+    flags |= mapper(int.down.as_ref(), 1)?;
+    flags |= mapper(int.left.as_ref(), 2)?;
+    flags |= mapper(int.right.as_ref(), 3)?;
     Some([
     //  lr   lr   lr   lr   lr   lr   lr   lr   lr   lr   lr   lr   lr   lr   lr   lr    ┃
     // ──────────────────────────────────────────────────────────────────────────────────┨ uuddllrr
@@ -103,6 +103,24 @@ pub fn terminol_default_intersect_handler(int: Intersect) -> Option<char> {
         '┰', '╤', '┲', '┒', '╤', '╤', '╤', '╕', '┱', '╤', '┳', '┓', '┎', '╒', '┏', '╻', // 1110....
         '─', '═', '╼', '╴', '═', '═', '═', '╸', '╾', '═', '━', '╸', '╶', '╺', '╺', ' ', // 1111....
     ][flags as usize])
+}
+
+pub fn ol_ascii_intersect_hdl(int: &Intersect) -> Option<char> {
+    let f = |x: &Rc<dyn Line>| x.get_ident() != "ascii";
+    if int.left.as_ref().map_or(false, f)
+        || int.right.as_ref().map_or(false, f)
+        || int.up.as_ref().map_or(false, f)
+        || int.down.as_ref().map_or(false, f)
+    {
+        return None;
+    }
+    Some(if int.left.as_ref().and(int.right.as_ref()).is_some() {
+        '-'
+    } else if int.up.as_ref().and(int.down.as_ref()).is_some() {
+        '|'
+    } else {
+        '+'
+    })
 }
 
 pub trait Drawable: std::fmt::Debug {
@@ -128,7 +146,10 @@ pub struct Application {
 impl Application {
     pub fn new() -> Self {
         // TODO: default line_handlers
-        Self::default()
+        let mut x = Self::default();
+        x.intersect_handlers.push(Rc::new(ol_ascii_intersect_hdl));
+        x.intersect_handlers.push(Rc::new(ol_default_intersect_hdl));
+        x
     }
 
     pub fn handle_intersect(&self, int: &Intersect) -> Option<char> {
