@@ -5,7 +5,7 @@ use std::process::{ChildStderr, ChildStdout, Command, Stdio};
 use std::sync::Arc;
 use tracing::{debug, warn};
 
-fn _just_read_stdout(tx: Arc<SegQueue<u8>>, stop: Arc<ArrayQueue<()>>, mut fd: ChildStdout) {
+fn _just_read_stdout(tx: &Arc<SegQueue<u8>>, stop: &Arc<ArrayQueue<()>>, mut fd: ChildStdout) {
     while stop.is_empty() {
         let mut buf = [0];
         match fd.read(&mut buf) {
@@ -16,7 +16,7 @@ fn _just_read_stdout(tx: Arc<SegQueue<u8>>, stop: Arc<ArrayQueue<()>>, mut fd: C
     }
 }
 
-fn _just_read_stderr(tx: Arc<SegQueue<u8>>, stop: Arc<ArrayQueue<()>>, mut fd: ChildStderr) {
+fn _just_read_stderr(tx: &Arc<SegQueue<u8>>, stop: &Arc<ArrayQueue<()>>, mut fd: ChildStderr) {
     while stop.is_empty() {
         let mut buf = [0];
         match fd.read(&mut buf) {
@@ -42,8 +42,8 @@ pub fn read_while_show_output(
 
     let mut hdl = cmd.stdout(Stdio::piped()).stderr(Stdio::piped()).spawn()?;
     let (stdout, stderr) = (hdl.stdout.take().unwrap(), hdl.stderr.take().unwrap());
-    let outhdl = std::thread::spawn(|| _just_read_stdout(outqc, outstopc, stdout));
-    let errhdl = std::thread::spawn(|| _just_read_stderr(errqc, errstopc, stderr));
+    let outhdl = std::thread::spawn(move || _just_read_stdout(&outqc, &outstopc, stdout));
+    let errhdl = std::thread::spawn(move || _just_read_stderr(&errqc, &errstopc, stderr));
     let (mut out, mut err) = (String::new(), String::new());
     let (mut tmpoutbytes, mut tmperrbytes) = (vec![], vec![]);
 
@@ -54,7 +54,7 @@ pub fn read_while_show_output(
         }
         if let Ok(sout) = core::str::from_utf8(&tmpoutbytes) {
             out.push_str(sout);
-            let s = sout.replace("\n", &newline).replace("\r", &newrline);
+            let s = sout.replace('\n', &newline).replace('\r', &newrline);
             std::io::stdout().write_all(s.as_bytes())?;
             tmpoutbytes.clear();
         }
@@ -64,7 +64,7 @@ pub fn read_while_show_output(
         }
         if let Ok(serr) = core::str::from_utf8(&tmperrbytes) {
             err.push_str(serr);
-            let s = serr.replace("\n", &newline).replace("\r", &newrline);
+            let s = serr.replace('\n', &newline).replace('\r', &newrline);
             std::io::stderr().write_all(s.as_bytes())?;
             tmperrbytes.clear();
         }

@@ -68,13 +68,13 @@ pub type IntersectHandler = Rc<dyn Fn(&Intersect) -> Option<char>>;
 pub fn ol_default_intersect_hdl(int: &Intersect) -> Option<char> {
     fn mapper(s: Option<&Rc<dyn Line>>, shift: u8) -> Option<u8> {
         Some(
-            match s.map(|s| s.get_ident()).as_ref().map(|s| s.as_str()) {
+            match s.map(|s| s.get_ident()).as_deref() {
                 Some("single") => 0b00,
                 Some("double") => 0b01,
                 Some("bold") => 0b10,
                 None => 0b11,
                 _ => return None, // we don't handle "ascii" here
-            } >> shift * 2,
+            } >> (shift * 2),
         )
     }
     let mut flags: u8 = 0;
@@ -157,7 +157,7 @@ impl Application {
     }
 
     pub fn must_handle_intersect(&self, int: &Intersect) -> char {
-        self.handle_intersect(&int)
-            .expect(&format!("Cannot handle intersect {int:?}"))
+        self.handle_intersect(int)
+            .unwrap_or_else(|| panic!("Cannot handle intersect {int:?}"))
     }
 }

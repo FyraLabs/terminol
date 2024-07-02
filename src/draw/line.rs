@@ -3,10 +3,10 @@ macro_rules! impl_with_orientation_for_line_struct {
     ($($struct:ty),+) => {$(
         impl $crate::draw::LineMake for $struct {
             fn new_horz() -> Self {
-                Self { orientation: $crate::draw::Orientation::Horizontal, ..Default::default() }
+                Self { orientation: $crate::draw::Orientation::Horizontal }
             }
             fn new_vert() -> Self {
-                Self { orientation: $crate::draw::Orientation::Vertical, ..Default::default() }
+                Self { orientation: $crate::draw::Orientation::Vertical }
             }
         }
     )+};
